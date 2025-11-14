@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCIC IT CLUB Online Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* Card-style sections */
+        .card {
+            padding: 40px;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .card.hidden {
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        /* Headers */
+        h1,
+        h2 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+
+        /* Entry Form Styles */
+        #entry-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        #entry-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        #entry-form input[type="text"],
+        #entry-form input[type="number"],
+        #entry-form input[type="file"],
+        #entry-form select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            font-size: 1em;
+        }
+
+        #entry-form input:focus,
+        #entry-form select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        #entry-form .picture-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        #entry-form #preview-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+
+        /* Quiz Section Styles */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .quiz-header #question-counter {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .quiz-header #timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d9534f;
+        }
+
+        #question-text {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .option:hover {
+            background-color: #e2e6ea;
+            border-color: #007bff;
+        }
+
+        .option.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        .option.correct {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+
+        .option.wrong {
+            background-color: #dc3545;
+            color: white;
+            border-color: #c82333;
+        }
+
+        /* Results Section Styles */
+        #results-card .result-summary {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #results-card #score-text {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+
+        /* Buttons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        #download-cert-btn {
+            background: linear-gradient(45deg, #28a745, #218838);
+            margin-top: 30px;
+        }
+
+        #download-cert-btn:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .card {
+                padding: 25px;
+            }
+
+            #question-text {
+                font-size: 1.2em;
+            }
+
+            .option {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (min-width: 600px) {
+            .options-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div id="entry-card" class="card">
+            <h1>BCIC IT CLUB Quiz Challenge</h1>
+            <form id="entry-form">
+                <div class="form-group">
+                    <label for="name">আপনার নাম (Name):</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="year">বর্ষ (Year):</label>
+                    <select id="year" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; transition: border-color 0.3s; font-size: 1em;">
+                        <option value="">-- নির্বাচন করুন (Select) --</option>
+                        <option value="1st year">১ম বর্ষ (1st Year)</option>
+                        <option value="2nd year">২য় বর্ষ (2nd Year)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="section">শাখা (Section):</label>
+                    <input type="text" id="section" required>
+                </div>
+                <div class="form-group">
+                    <label for="roll">রোল নম্বর (Roll Number):</label>
+                    <input type="number" id="roll" required>
+                </div>
+                <div class="form-group">
+                    <label for="picture">আপনার ছবি (Picture - Optional):</label>
+                    <input type="file" id="picture" accept="image/*">
+                    <div class="picture-preview" id="picture-preview-container" style="display: none;">
+                        <img id="preview-img" src="" alt="Selected Picture">
+                        <span id="file-name"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn">কুইজ শুরু করুন</button>
+            </form>
+
+            <!-- Leaderboard Section on Entry Card -->
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <h2 style="margin-top: 0;">🏆 Top Rankings</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+                    <button id="entry-year-1st" class="year-selector-btn active" data-year="1st year" style="padding: 10px 20px; border: 2px solid #007bff; background: #007bff; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                        ১ম বর্ষ (1st Year)
+                    </button>
+                    <button id="entry-year-2nd" class="year-selector-btn" data-year="2nd year" style="padding: 10px 20px; border: 2px solid #007bff; background: white; color: #007bff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                        ২য় বর্ষ (2nd Year)
+                    </button>
+                </div>
+                <div id="entry-leaderboard-container" style="max-height: 400px; overflow-y: auto;">
+                    <ol id="entry-leaderboard-ol" style="padding-left: 1.2em; list-style-position: inside;"></ol>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="quiz-card" class="card hidden">
+            <div class="quiz-header">
+                <div id="question-counter"></div>
+                <div id="timer">20</div>
+            </div>
+            <div id="question-text"></div>
+            <div class="options-container" id="options-container">
+            </div>
+        </div>
+
+        <div id="results-card" class="card hidden">
+            <h2>কুইজ সম্পন্ন!</h2>
+            <div class="result-summary">
+                <p id="score-text">আপনার স্কোর: 0</p>
+            </div>
+            <button id="download-cert-btn" class="btn">সার্টিফিকেট ডাউনলোড করুন</button>
+
+        </div>
+
+        <!-- Leaderboard Card -->
+        <div id="leaderboard-card" class="card hidden">
+            <h2>Leaderboard 🏆</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+                <button id="leaderboard-year-1st" class="year-selector-btn active" data-year="1st year" style="padding: 10px 20px; border: 2px solid #007bff; background: #007bff; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                    ১ম বর্ষ (1st Year)
+                </button>
+                <button id="leaderboard-year-2nd" class="year-selector-btn" data-year="2nd year" style="padding: 10px 20px; border: 2px solid #007bff; background: white; color: #007bff; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                    ২য় বর্ষ (2nd Year)
+                </button>
+            </div>
+            <div id="leaderboard-container" style="max-height: 500px; overflow-y: auto;">
+                <ol id="leaderboard-ol" style="padding-left: 1.2em; list-style-position: inside;"></ol>
+            </div>
+            <button id="leaderboard-back-btn" class="btn" style="margin-top: 16px;">ফিরে যান</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const entryCard = document.getElementById('entry-card');
+        const quizCard = document.getElementById('quiz-card');
+        const resultsCard = document.getElementById('results-card');
+
+        const entryForm = document.getElementById('entry-form');
+        const nameInput = document.getElementById('name');
+        const yearInput = document.getElementById('year');
+        const sectionInput = document.getElementById('section');
+        const rollInput = document.getElementById('roll');
+        const pictureInput = document.getElementById('picture');
+        const picturePreviewContainer = document.getElementById('picture-preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const fileNameSpan = document.getElementById('file-name');
+
+        const questionCounter = document.getElementById('question-counter');
+        const timerDisplay = document.getElementById('timer');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        const scoreText = document.getElementById('score-text');
+        const downloadCertBtn = document.getElementById('download-cert-btn');
+
+        // Question Bank (50 Questions)
+        const QUESTIONS = [
+            { q: "ভার্চুয়াল রিয়েলিটিতে কী ধরনের ইমেজ তৈরি হয়?", options: ["একমাত্রিক", "দ্বিমাত্রিক", "ত্রিমাত্রিক", "চতুর্মাত্রিক"], answer: 2 },
+            { q: "Wi-Fi এর পূর্ণরূপ কী?", options: ["Wireless Fidelity", "Wired Fidelity", "Wireless Fiber", "Web Fidelity"], answer: 0 },
+            { q: "কোনটি সার্চ ইঞ্জিন নয়?", options: ["Google", "Yahoo", "Bing", "Mozilla Firefox"], answer: 3 },
+            { q: "HTML ট্যাগের চিহ্ন কোনটি?", options: ["<>", "{}", "[]", "()"], answer: 0 },
+            { q: "C ভাষায় প্রত্যেকটি স্টেটমেন্টের শেষে কী দিতে হয়?", options: [", (কমা)", ". (ফুলস্টপ)", "; (সেমিকোলন)", ": (কোলন)"], answer: 2 },
+            { q: "ডেটাবেজের ভিত্তি কী?", options: ["রেকর্ড", "ফিল্ড", "টেবিল", "ডেটা"], answer: 3 },
+            { q: "কোন টপোলজিতে একটি কেন্দ্রীয় হাব থাকে?", options: ["বাস", "রিং", "স্টার", "মেশ"], answer: 2 },
+            { q: "(1011)₂ এর সমতুল্য ডেসিমেল সংখ্যা কত?", options: ["9", "10", "11", "13"], answer: 2 },
+            { q: "কৃত্রিম বুদ্ধিমত্তার জনক কে?", options: ["Charles Babbage", "Alan Turing", "John McCarthy", "Tim Berners-Lee"], answer: 2 },
+            { q: "রোবটিক্স শব্দটি কে প্রথম ব্যবহার করেন?", options: ["Isaac Asimov", "Karel Capek", "George Devol", "William Grey Walter"], answer: 0 },
+            { q: "বায়োইনফরমেটিক্স এর কাজ কী নিয়ে?", options: ["কম্পিউটার হার্ডওয়্যার", "জৈবিক তথ্য", "নেটওয়ার্কিং", "অপারেটিং সিস্টেম"], answer: 1 },
+            { q: "সর্বপ্রথম সফলভাবে কোনটি ব্যবহার করে দূরবর্তী স্থানে ডেটা পাঠানো হয়?", options: ["টেলিগ্রাফ", "টেলিফোন", "রেডিও", "স্যাটেলাইট"], answer: 0 },
+            { q: "ক্লাউড কম্পিউটিং এর জনক কে?", options: ["J.C.R. Licklider", "Steve Jobs", "Bill Gates", "Mark Zuckerberg"], answer: 0 },
+            { q: "ডেটা কমিউনিকেশনের মৌলিক উপাদান কয়টি?", options: ["৩টি", "৪টি", "৫টি", "৬টি"], answer: 2 },
+            { q: "NFC এর পূর্ণরূপ কী?", options: ["Near Field Communication", "New Frequency Connection", "Near Frequency Communication", "Network Field Channel"], answer: 0 },
+            { q: "OR গেটের আউটপুট 1 হবে কখন?", options: ["সব ইনপুট 0 হলে", "সব ইনপুট 1 হলে", "যেকোনো একটি ইনপুট 1 হলে", "যেকোনো একটি ইনপুট 0 হলে"], answer: 2 },
+            { q: "একটি টেবিলের সারিকে কী বলা হয়?", options: ["ফিল্ড", "রেকর্ড", "এনটিটি", "অ্যাট্রিবিউট"], answer: 1 },
+            { q: "ওয়েবপেজ তৈরির জন্য কোন ভাষাটি অপরিহার্য?", options: ["Python", "Java", "HTML", "C++"], answer: 2 },
+            { q: "অ্যালগরিদমের সচিত্র রূপ কোনটি?", options: ["প্রোগ্রাম", "কোডিং", "ফ্লোচার্ট", "সুডোকোড"], answer: 2 },
+            { q: "বিশ্বগ্রাম বা Global Village এর ধারণা কে দেন?", options: ["Marshall McLuhan", "Norbert Wiener", "Vannevar Bush", "J.C.R. Licklider"], answer: 0 },
+            { q: "ক্রায়োসার্জারি চিকিৎসায় কোন গ্যাস ব্যবহার করা হয়?", options: ["অক্সিজেন", "নাইট্রোজেন", "হিলিয়াম", "আর্গন"], answer: 1 },
+            { q: "Bluetooth এর রেঞ্জ সাধারণত কত?", options: ["১-১০ মিটার", "৫০-১০০ মিটার", "১০০-২০০ মিটার", "১ কিলোমিটার"], answer: 0 },
+            { q: "বুলিয়ান অ্যালজেবরায় মৌলিক অপারেশন কয়টি?", options: ["২টি", "৩টি", "৪টি", "৫টি"], answer: 1 },
+            { q: "(A+B)' = ?", options: ["A'.B'", "A'+B'", "A.B", "A+B"], answer: 0 },
+            { q: "ASCII কোড কত বিটের?", options: ["4", "7", "8", "16"], answer: 1 },
+            { q: "HTML এ সবচেয়ে বড় হেডিং ট্যাগ কোনটি?", options: ["<h6>", "<h3>", "<h1>", "<h4>"], answer: 2 },
+            { q: "CSS এর পূর্ণরূপ কী?", options: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"], answer: 0 },
+            { q: "কম্পাইলার কী?", options: ["একটি হার্ডওয়্যার", "একটি অনুবাদক প্রোগ্রাম", "একটি অপারেটিং সিস্টেম", "একটি অ্যাপ্লিকেশন সফটওয়্যার"], answer: 1 },
+            { q: "SQL এর পূর্ণরূপ কী?", options: ["Structured Query Language", "Simple Query Language", "Standard Question Language", "System Query Language"], answer: 0 },
+            { q: "ডেটাবেজে প্রাইমারি কী (Primary Key) এর কাজ কী?", options: ["ডেটা ডিলিট করা", "রেকর্ডকে স্বতন্ত্রভাবে শনাক্ত করা", "ডেটা সর্ট করা", "টেবিল তৈরি করা"], answer: 1 },
+            { q: "হ্যাকিং কী?", options: ["অনুমতি ছাড়া সিস্টেমে প্রবেশ", "সফটওয়্যার তৈরি করা", "ডেটা এনক্রিপ্ট করা", "নেটওয়ার্ক ডিজাইন করা"], answer: 0 },
+            { q: "টুইস্টেড পেয়ার ক্যাবলে সাধারণত কয় জোড়া তার থাকে?", options: ["২ জোড়া", "৪ জোড়া", "৬ জোড়া", "৮ জোড়া"], answer: 1 },
+            { q: "সার্বজনীন গেট কোনটি?", options: ["AND, OR", "NOT, XOR", "NAND, NOR", "XNOR, AND"], answer: 2 },
+            { q: "হেক্সাডেসিমেল সংখ্যা পদ্ধতির বেস কত?", options: ["2", "8", "10", "16"], answer: 3 },
+            { q: "URL এর পূর্ণরূপ কী?", options: ["Uniform Resource Locator", "Universal Resource Link", "Uniform Resource Link", "Universal Record Locator"], answer: 0 },
+            { q: "ইন্টারনেট কবে চালু হয়?", options: ["১৯৫৯", "১৯৬৯", "১৯৭৯", "১৯৮৯"], answer: 1 },
+            { q: "কোনটি চতুর্থ প্রজন্মের ভাষা (4GL)?", options: ["C", "Java", "SQL", "Machine Language"], answer: 2 },
+            { q: "ব্যান্ডউইথ কী?", options: ["ডেটা প্রবাহের হার", "নেটওয়ার্কের গতি", "কম্পিউটারের প্রসেসিং ক্ষমতা", "ডেটা সংরক্ষণের স্থান"], answer: 0 },
+            { q: "ডেটা এনক্রিপশন কেন করা হয়?", options: ["গতি বাড়ানোর জন্য", "নিরাপত্তার জন্য", "ডেটা কমানোর জন্য", "ত্রুটি সংশোধনের জন্য"], answer: 1 },
+            { q: "IPv4 অ্যাড্রেস কত বিটের?", options: ["16 bit", "32 bit", "64 bit", "128 bit"], answer: 1 },
+            { q: "জেনেটিক ইঞ্জিনিয়ারিং এর মাধ্যমে নতুন জাতের উদ্ভিদ তৈরিতে কী ব্যবহার করা হয়?", options: ["বায়োমেট্রিক্স", "ন্যানোটেকনোলজি", "ডিএনএ প্রযুক্তি", "রোবটিক্স"], answer: 2 },
+            { q: "যে ডিভাইসটি ডিজিটাল সংকেতকে অ্যানালগ সংকেতে রূপান্তর করে, তাকে কী বলে?", options: ["মডেম", "হাব", "সুইচ", "রাউটার"], answer: 0 },
+            { q: "1 বাইট = কত বিট?", options: ["4 বিট", "8 বিট", "16 বিট", "32 বিট"], answer: 1 },
+            { q: "HTML এ লাইন ব্রেক করার জন্য কোন ট্যাগ ব্যবহার করা হয়?", options: ["<break>", "<lb>", "<br>", "<line>"], answer: 2 },
+            { q: "for(i=1; i<=5; i++) - এই লুপটি কতবার ঘুরবে?", options: ["৪ বার", "৫ বার", "৬ বার", "অসীম বার"], answer: 1 },
+            { q: "DBMS এর পূর্ণরূপ কী?", options: ["Database Management System", "Data Management Software", "Database Main System", "Data Backup Management System"], answer: 0 },
+            { q: "কোন গেটকে ইনভার্টার গেট বলা হয়?", options: ["AND", "OR", "NOT", "XOR"], answer: 2 },
+            { q: "অক্টাল সংখ্যা পদ্ধতির ভিত্তি কত?", options: ["2", "8", "10", "16"], answer: 1 },
+            { q: "মোবাইল ফোনের কোন প্রজন্ম থেকে ইন্টারনেট ব্যবহার শুরু হয়?", options: ["প্রথম", "দ্বিতীয়", "তৃতীয়", "চতুর্থ"], answer: 1 },
+            { q: "ই-কমার্স মানে কী?", options: ["ইলেকট্রনিক কমার্স", "ইন্টারনেট কমার্স", "এক্সটার্নাল কমার্স", "ইজি কমার্স"], answer: 0 }
+        ];
+
+        // Quiz State
+        let currentUser = {};
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeRemaining = 20;
+
+
+
+        // Functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startQuiz() {
+            // Randomly pick 20 questions
+            shuffleArray(QUESTIONS);
+            quizQuestions = QUESTIONS.slice(0, 20);
+
+            currentQuestionIndex = 0;
+            score = 0;
+
+            // Transition from entry to quiz
+            entryCard.classList.add('hidden');
+            setTimeout(() => {
+                quizCard.classList.remove('hidden');
+                loadQuestion();
+            }, 500);
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex < quizQuestions.length) {
+                // Reset styles and timer
+                resetTimer();
+                optionsContainer.innerHTML = '';
+
+                const question = quizQuestions[currentQuestionIndex];
+                questionCounter.innerText = `প্রশ্ন ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+                questionText.innerText = question.q;
+
+                question.options.forEach((option, index) => {
+                    const optionElement = document.createElement('button');
+                    optionElement.classList.add('option');
+                    optionElement.innerText = option;
+                    optionElement.addEventListener('click', () => selectAnswer(index, optionElement));
+                    optionsContainer.appendChild(optionElement);
+                });
+
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function startTimer() {
+            timeRemaining = 20;
+            timerDisplay.innerText = timeRemaining;
+            timer = setInterval(() => {
+                timeRemaining--;
+                timerDisplay.innerText = timeRemaining;
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    moveToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+        }
+
+        function selectAnswer(selectedIndex, selectedElement) {
+            resetTimer();
+            const question = quizQuestions[currentQuestionIndex];
+            const correctIndex = question.answer;
+
+            // Disable all options after one is clicked
+            Array.from(optionsContainer.children).forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === correctIndex) {
+                score++;
+                selectedElement.classList.add('correct');
+            } else {
+                selectedElement.classList.add('wrong');
+                // Highlight the correct answer
+                optionsContainer.children[correctIndex].classList.add('correct');
+            }
+
+            setTimeout(moveToNextQuestion, 1200); // Wait 1.2s before next question
+        }
+
+        function moveToNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function endQuiz() {
+            quizCard.classList.add('hidden');
+            setTimeout(() => {
+                resultsCard.classList.remove('hidden');
+                scoreText.innerText = `আপনার স্কোর: ${score}/${quizQuestions.length}`;
+            }, 500);
+        }
+
+        // Default avatar SVG as data URL
+        const defaultAvatar =
+            'data:image/svg+xml;base64,' +
+            btoa(`<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"60\" height=\"60\" viewBox=\"0 0 60 60\"><circle cx=\"30\" cy=\"30\" r=\"30\" fill=\"#e0e7ef\"/><circle cx=\"30\" cy=\"24\" r=\"12\" fill=\"#60a5fa\"/><ellipse cx=\"30\" cy=\"44\" rx=\"16\" ry=\"10\" fill=\"#3b82f6\"/></svg>`);
+
+        async function downloadCertificate() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Create sophisticated gradient background
+            const gradientSteps = 30;
+            for (let i = 0; i < gradientSteps; i++) {
+                const intensity = 0.95 - (i * 0.03);
+                const r = Math.floor(248 + (i * 0.2));
+                const g = Math.floor(250 + (i * 0.1));
+                const b = Math.floor(255 - (i * 0.5));
+                doc.setFillColor(r, g, b);
+                doc.rect(0, 0, 297, 210, 'F');
+            }
+
+            // Add geometric pattern background
+            doc.setFillColor(240, 248, 255);
+            for (let i = 0; i < 15; i++) {
+                const x = 20 + (i * 18);
+                const y = 20 + (i % 3) * 15;
+                doc.circle(x, y, 2, 'F');
+            }
+
+            // Main border with modern design
+            doc.setLineWidth(4);
+            doc.setDrawColor(30, 58, 138); // Deep blue
+            doc.rect(20, 20, 257, 170);
+            
+            // Inner decorative border
+            doc.setLineWidth(1);
+            doc.setDrawColor(59, 130, 246); // Blue
+            doc.rect(25, 25, 247, 160);
+            
+            // Corner decorative elements
+            doc.setFillColor(30, 58, 138);
+            // Top corners
+            doc.rect(20, 20, 15, 4, 'F');
+            doc.rect(262, 20, 15, 4, 'F');
+            // Bottom corners
+            doc.rect(20, 186, 15, 4, 'F');
+            doc.rect(262, 186, 15, 4, 'F');
+
+            // Header section with modern typography
+            doc.setFontSize(42);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 58, 138); // Deep blue
+            doc.text('BCIC IT CLUB', doc.internal.pageSize.getWidth() / 2, 50, { align: 'center' });
+
+            // Elegant subtitle with underline
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(75, 85, 99); // Gray
+            doc.text('Certificate of Excellence', doc.internal.pageSize.getWidth() / 2, 65, { align: 'center' });
+
+            // Modern divider with geometric elements
+            doc.setLineWidth(3);
+            doc.setDrawColor(59, 130, 246);
+            doc.line(80, 75, 217, 75);
+            
+            // Decorative elements
+            doc.setFillColor(59, 130, 246);
+            doc.circle(90, 75, 2, 'F');
+            doc.circle(207, 75, 2, 'F');
+            doc.rect(140, 73, 17, 4, 'F');
+
+            // Main content area with modern card design
+            doc.setFillColor(248, 250, 252);
+            doc.rect(40, 90, 217, 60, 'F');
+            
+            // Card border
+            doc.setLineWidth(1);
+            doc.setDrawColor(226, 232, 240);
+            doc.rect(40, 90, 217, 60);
+
+            // Add user photo with modern frame (positioned left side)
+            let photoToUse = currentUser.picture ? currentUser.picture : defaultAvatar;
+            try {
+                // Modern photo frame
+                doc.setFillColor(255, 255, 255);
+                doc.rect(55, 105, 40, 40, 'F');
+                doc.setLineWidth(2);
+                doc.setDrawColor(59, 130, 246);
+                doc.rect(55, 105, 40, 40);
+                // Add photo or avatar
+                doc.addImage(photoToUse, 'JPEG', 60, 110, 30, 30);
+            } catch (e) {
+                console.error("Error adding image to PDF: ", e);
+            }
+
+            // Certification text (shifted right to avoid photo overlap)
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(55, 65, 81);
+            doc.text('This is to certify that', doc.internal.pageSize.getWidth() / 2 + 30, 110, { align: 'center' });
+
+            // Student name with emphasis
+            doc.setFontSize(36);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 58, 138);
+            doc.text(currentUser.name, doc.internal.pageSize.getWidth() / 2 + 30, 130, { align: 'center' });
+
+            // Student details in modern layout
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(75, 85, 99);
+            doc.text(`Year: ${currentUser.year || 'N/A'}`, doc.internal.pageSize.getWidth() / 2 - 50, 145, { align: 'center' });
+            doc.text(`Section: ${currentUser.section}`, doc.internal.pageSize.getWidth() / 2 + 10, 145, { align: 'center' });
+            doc.text(`Roll: ${currentUser.roll}`, doc.internal.pageSize.getWidth() / 2 + 70, 145, { align: 'center' });
+
+            // Achievement statement
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81);
+            doc.text('has successfully completed the', doc.internal.pageSize.getWidth() / 2, 165, { align: 'center' });
+            
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 58, 138);
+            doc.text('BCIC IT CLUB Quiz Challenge', doc.internal.pageSize.getWidth() / 2, 180, { align: 'center' });
+
+            // Score display with modern badge design
+            doc.setFillColor(16, 185, 129); // Green
+            doc.rect(120, 190, 57, 20, 'F');
+            
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255);
+            doc.text(`SCORE: ${score}/${quizQuestions.length}`, doc.internal.pageSize.getWidth() / 2, 203, { align: 'center' });
+
+            // Footer with modern layout
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Date section
+            doc.setFillColor(248, 250, 252);
+            doc.rect(30, 220, 80, 15, 'F');
+            doc.setLineWidth(1);
+            doc.setDrawColor(226, 232, 240);
+            doc.rect(30, 220, 80, 15);
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(75, 85, 99);
+            doc.text(`Date: ${dateStr}`, 70, 230, { align: 'center' });
+
+            // Official seal design
+            doc.setFillColor(248, 250, 252);
+            doc.rect(187, 220, 80, 15, 'F');
+            doc.setLineWidth(1);
+            doc.setDrawColor(226, 232, 240);
+            doc.rect(187, 220, 80, 15);
+            
+            // Seal circle
+            doc.setLineWidth(2);
+            doc.setDrawColor(30, 58, 138);
+            doc.circle(227, 227.5, 8);
+            
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 58, 138);
+            doc.text('OFFICIAL', 227, 225, { align: 'center' });
+            doc.text('SEAL', 227, 228, { align: 'center' });
+            doc.text('BCIC IT CLUB', 227, 231, { align: 'center' });
+
+            // Modern tagline
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(100, 116, 139);
+            doc.text('Empowering Students Through Technology', doc.internal.pageSize.getWidth() / 2, 250, { align: 'center' });
+
+
+            // Add subtle decorative elements
+            doc.setFillColor(59, 130, 246);
+            // Top decorative line
+            doc.rect(20, 20, 257, 2, 'F');
+            // Bottom decorative line
+            doc.rect(20, 188, 257, 2, 'F');
+
+            // Side decorative elements
+            doc.rect(20, 20, 2, 170, 'F');
+            doc.rect(275, 20, 2, 170, 'F');
+
+            doc.save(`Certificate-${currentUser.name}.pdf`);
+        }
+
+
+        // Event Listeners
+        entryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentUser.name = nameInput.value.trim();
+            currentUser.year = yearInput.value.trim();
+            currentUser.section = sectionInput.value.trim();
+            currentUser.roll = rollInput.value.trim();
+
+            if (currentUser.name && currentUser.year && currentUser.section && currentUser.roll) {
+                startQuiz();
+            } else {
+                alert('অনুগ্রহ করে সকল তথ্য পূরণ করুন।');
+            }
+        });
+
+        pictureInput.addEventListener('change', () => {
+            const file = pictureInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentUser.picture = e.target.result;
+                    previewImg.src = e.target.result;
+                    fileNameSpan.textContent = file.name;
+                    picturePreviewContainer.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        downloadCertBtn.addEventListener('click', downloadCertificate);
+
+
+    </script>
+
+    <!-- Firebase Leaderboard Script -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            query,
+            where,
+            orderBy,
+            limit,
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwbj7juTPkOS5c24zVgeyvxEjj3cVpbwc",
+            authDomain: "bcicquiz-2.firebaseapp.com",
+            projectId: "bcicquiz-2",
+            storageBucket: "bcicquiz-2.firebasestorage.app",
+            messagingSenderId: "1067522885400",
+            appId: "1:1067522885400:web:0dea7d27c313f55b18406d",
+            measurementId: "G-5DVKJWBRW6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const scoresCol = collection(db, "scores");
+
+        // Submit score to Firestore
+        async function submitScoreToFirestore() {
+            try {
+                const doc = {
+                    name: currentUser.name || "Anonymous",
+                    year: currentUser.year || "N/A",
+                    section: currentUser.section || "N/A",
+                    roll: currentUser.roll || "N/A",
+                    score: score,
+                    maxScore: quizQuestions.length,
+                    picture: currentUser.picture ? currentUser.picture : null,
+                    timestamp: serverTimestamp()
+                };
+
+                await addDoc(scoresCol, doc);
+                console.log("✓ Score submitted to Firestore");
+            } catch (err) {
+                console.error("❌ Error adding score:", err);
+            }
+        }
+
+        // Current selected year for leaderboard (default to 1st year)
+        let currentLeaderboardYear = "1st year";
+
+        // Load top 10 scores from Firestore filtered by year
+        async function loadLeaderboard(limitN = 10, year = currentLeaderboardYear) {
+            const ol = document.getElementById("leaderboard-ol");
+            if (!ol) {
+                console.error("Leaderboard OL element not found");
+                return;
+            }
+            
+            try {
+                // Query filtered by year, ordered by score
+                const q = query(
+                    scoresCol, 
+                    where("year", "==", year),
+                    orderBy("score", "desc"), 
+                    limit(limitN * 2)
+                ); // Get more to sort by timestamp in JS
+                const snap = await getDocs(q);
+                ol.innerHTML = "";
+
+                if (snap.empty) {
+                    ol.innerHTML = `<li style='color: #999; font-style: italic;'>No scores yet for ${year}. Be the first!</li>`;
+                    return;
+                }
+
+                // Convert to array and sort by score (desc) then timestamp (asc) in JavaScript
+                const scores = [];
+                snap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    // Handle timestamp - could be Timestamp object, number, or null
+                    let timestampMs = 0;
+                    if (data.timestamp) {
+                        if (data.timestamp.toMillis) {
+                            timestampMs = data.timestamp.toMillis();
+                        } else if (typeof data.timestamp === 'number') {
+                            timestampMs = data.timestamp;
+                        } else if (data.timestamp.seconds) {
+                            timestampMs = data.timestamp.seconds * 1000;
+                        }
+                    }
+                    scores.push({
+                        ...data,
+                        timestamp: timestampMs,
+                        id: docSnap.id
+                    });
+                });
+
+                // Sort by score (desc), then by timestamp (asc) for tie-breaking
+                scores.sort((a, b) => {
+                    if (b.score !== a.score) {
+                        return b.score - a.score;
+                    }
+                    return a.timestamp - b.timestamp;
+                });
+
+                // Take top N
+                const topScores = scores.slice(0, limitN);
+
+                let rank = 1;
+                topScores.forEach((data) => {
+                    const li = document.createElement("li");
+                    li.style.marginBottom = "16px";
+                    li.style.listStyle = "none";
+
+                    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "  ";
+
+                    li.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:12px; padding:10px; background:#f8f9fa; border-radius:8px; border-left:4px solid #007bff;">
+                            <span style="font-weight:bold; font-size:1.2em; width:30px;">${medal}</span>
+                            ${data.picture ? `<img src="${escapeHtml(data.picture)}" alt="" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #ddd;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iI2UwZTdlZiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjQiIHI9IjEyIiBmaWxsPSIjNjBhNWZhIi8+PGVsbGlwc2UgY3g9IjMwIiBjeT0iNDQiIHJ4PSIxNiIgcnk9IjEwIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+';" />` : `<div style="width:44px; height:44px; border-radius:50%; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:1.5em;">👤</div>`}
+                            <div style="flex:1;">
+                                <div style="font-weight:700; font-size:1.05em;">${escapeHtml(data.name || 'Anonymous')}</div>
+                                <div style="font-size:0.85em; color:#666;">Roll: ${escapeHtml(data.roll || 'N/A')} • ${escapeHtml(data.section || 'N/A')}</div>
+                            </div>
+                            <div style="font-weight:800; font-size:1.3em; color:#0056b3; min-width:60px; text-align:right;">${data.score}/${data.maxScore}</div>
+                        </div>
+                    `;
+                    ol.appendChild(li);
+                    rank++;
+                });
+
+                console.log("✓ Leaderboard loaded successfully:", topScores.length, "scores");
+
+            } catch (err) {
+                console.error("❌ Error loading leaderboard:", err);
+                ol.innerHTML = `<li style='color: #dc3545; font-style: italic;'>Error loading leaderboard: ${err.message}. Please check console for details.</li>`;
+            }
+        }
+
+        // Safe HTML escape
+        function escapeHtml(s) {
+            if (!s) return "";
+            return String(s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Current selected year for entry page leaderboard (default to 1st year)
+        let currentEntryLeaderboardYear = "1st year";
+
+        // Load entry page leaderboard on page load
+        async function loadEntryPageLeaderboard(year = currentEntryLeaderboardYear) {
+            const ol = document.getElementById("entry-leaderboard-ol");
+            
+            if (!ol) {
+                console.error("Entry leaderboard OL element not found");
+                return;
+            }
+            
+            try {
+                // Query filtered by year, ordered by score
+                const q = query(
+                    scoresCol, 
+                    where("year", "==", year),
+                    orderBy("score", "desc"), 
+                    limit(20)
+                ); // Get more to sort by timestamp in JS
+                const snap = await getDocs(q);
+                ol.innerHTML = "";
+
+                if (snap.empty) {
+                    ol.innerHTML = `<li style='color: #999; font-style: italic;'>No scores yet for ${year}. Be the first!</li>`;
+                    return;
+                }
+
+                // Convert to array and sort by score (desc) then timestamp (asc) in JavaScript
+                const scores = [];
+                snap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    // Handle timestamp - could be Timestamp object, number, or null
+                    let timestampMs = 0;
+                    if (data.timestamp) {
+                        if (data.timestamp.toMillis) {
+                            timestampMs = data.timestamp.toMillis();
+                        } else if (typeof data.timestamp === 'number') {
+                            timestampMs = data.timestamp;
+                        } else if (data.timestamp.seconds) {
+                            timestampMs = data.timestamp.seconds * 1000;
+                        }
+                    }
+                    scores.push({
+                        ...data,
+                        timestamp: timestampMs,
+                        id: docSnap.id
+                    });
+                });
+
+                // Sort by score (desc), then by timestamp (asc) for tie-breaking
+                scores.sort((a, b) => {
+                    if (b.score !== a.score) {
+                        return b.score - a.score;
+                    }
+                    return a.timestamp - b.timestamp;
+                });
+
+                // Take top 10
+                const topScores = scores.slice(0, 10);
+
+                let rank = 1;
+                topScores.forEach((data) => {
+                    const li = document.createElement("li");
+                    li.style.marginBottom = "16px";
+                    li.style.listStyle = "none";
+
+                    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "  ";
+
+                    li.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:12px; padding:10px; background:#f8f9fa; border-radius:8px; border-left:4px solid #007bff;">
+                            <span style="font-weight:bold; font-size:1.2em; width:30px;">${medal}</span>
+                            ${data.picture ? `<img src="${escapeHtml(data.picture)}" alt="" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #ddd;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iI2UwZTdlZiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjQiIHI9IjEyIiBmaWxsPSIjNjBhNWZhIi8+PGVsbGlwc2UgY3g9IjMwIiBjeT0iNDQiIHJ4PSIxNiIgcnk9IjEwIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+';" />` : `<div style="width:44px; height:44px; border-radius:50%; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:1.5em;">👤</div>`}
+                            <div style="flex:1;">
+                                <div style="font-weight:700; font-size:1.05em;">${escapeHtml(data.name || 'Anonymous')}</div>
+                                <div style="font-size:0.85em; color:#666;">Roll: ${escapeHtml(data.roll || 'N/A')} • ${escapeHtml(data.section || 'N/A')}</div>
+                            </div>
+                            <div style="font-weight:800; font-size:1.3em; color:#0056b3; min-width:60px; text-align:right;">${data.score}/${data.maxScore}</div>
+                        </div>
+                    `;
+                    ol.appendChild(li);
+                    rank++;
+                });
+
+                console.log("✓ Entry page leaderboard loaded successfully:", topScores.length, "scores");
+
+            } catch (err) {
+                console.error("❌ Error loading entry page leaderboard:", err);
+                ol.innerHTML = `<li style='color: #dc3545; font-style: italic;'>Error loading leaderboard: ${err.message}. Please check console for details.</li>`;
+            }
+        }
+
+        // Show leaderboard UI
+        function showLeaderboardUI() {
+            resultsCard.classList.add('hidden');
+            document.getElementById('leaderboard-card').classList.remove('hidden');
+            loadLeaderboard(10, currentLeaderboardYear);
+        }
+
+        // Update year selector button styles
+        function updateYearSelectorButtons(containerPrefix, selectedYear) {
+            const btn1 = document.getElementById(`${containerPrefix}-year-1st`);
+            const btn2 = document.getElementById(`${containerPrefix}-year-2nd`);
+            
+            if (btn1 && btn2) {
+                // Reset both buttons
+                btn1.classList.remove('active');
+                btn2.classList.remove('active');
+                btn1.style.background = 'white';
+                btn1.style.color = '#007bff';
+                btn2.style.background = 'white';
+                btn2.style.color = '#007bff';
+                
+                // Set active button
+                const activeBtn = selectedYear === "1st year" ? btn1 : btn2;
+                activeBtn.classList.add('active');
+                activeBtn.style.background = '#007bff';
+                activeBtn.style.color = 'white';
+            }
+        }
+
+        // Event listeners for entry page year selector buttons
+        document.getElementById("entry-year-1st")?.addEventListener('click', () => {
+            currentEntryLeaderboardYear = "1st year";
+            updateYearSelectorButtons("entry", currentEntryLeaderboardYear);
+            loadEntryPageLeaderboard(currentEntryLeaderboardYear);
+        });
+
+        document.getElementById("entry-year-2nd")?.addEventListener('click', () => {
+            currentEntryLeaderboardYear = "2nd year";
+            updateYearSelectorButtons("entry", currentEntryLeaderboardYear);
+            loadEntryPageLeaderboard(currentEntryLeaderboardYear);
+        });
+
+        // Event listeners for leaderboard card year selector buttons
+        document.getElementById("leaderboard-year-1st")?.addEventListener('click', () => {
+            currentLeaderboardYear = "1st year";
+            updateYearSelectorButtons("leaderboard", currentLeaderboardYear);
+            loadLeaderboard(10, currentLeaderboardYear);
+        });
+
+        document.getElementById("leaderboard-year-2nd")?.addEventListener('click', () => {
+            currentLeaderboardYear = "2nd year";
+            updateYearSelectorButtons("leaderboard", currentLeaderboardYear);
+            loadLeaderboard(10, currentLeaderboardYear);
+        });
+
+        // Wire up back button
+        document.getElementById("leaderboard-back-btn").addEventListener('click', () => {
+            document.getElementById('leaderboard-card').classList.add('hidden');
+            resultsCard.classList.remove('hidden');
+        });
+
+        // Add "View Leaderboard" button to results card (if not already there)
+        function ensureLeaderboardButton() {
+            const btnId = "view-leaderboard-btn";
+            if (!document.getElementById(btnId)) {
+                const btn = document.createElement("button");
+                btn.id = btnId;
+                btn.className = "btn";
+                btn.style.marginTop = "12px";
+                btn.textContent = "🏆 Leaderboard দেখুন";
+                btn.addEventListener("click", showLeaderboardUI);
+                resultsCard.appendChild(btn);
+            }
+        }
+
+        // Override endQuiz to submit score and add leaderboard button
+        const originalEndQuiz = window.endQuiz;
+        window.endQuiz = function() {
+            originalEndQuiz.call(this);
+            
+            // Submit score after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                submitScoreToFirestore();
+                ensureLeaderboardButton();
+                loadEntryPageLeaderboard(); // Refresh entry page leaderboard
+            }, 600);
+        };
+
+        // Load leaderboard when page first loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loadEntryPageLeaderboard();
+            }, 1000);
+        });
+
+    </script>
+
+</body>
+
+</html>
