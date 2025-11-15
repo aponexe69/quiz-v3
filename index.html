@@ -13,6 +13,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -240,6 +241,31 @@
             .options-container {
                 grid-template-columns: 1fr 1fr;
             }
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            width: 100%;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #0056b3;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -636,9 +662,10 @@
             doc.setFontSize(14);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(75, 85, 99);
-            doc.text(`Year: ${currentUser.year || 'N/A'}`, doc.internal.pageSize.getWidth() / 2 - 50, 145, { align: 'center' });
-            doc.text(`Section: ${currentUser.section}`, doc.internal.pageSize.getWidth() / 2 + 10, 145, { align: 'center' });
-            doc.text(`Roll: ${currentUser.roll}`, doc.internal.pageSize.getWidth() / 2 + 70, 145, { align: 'center' });
+            doc.text(`Section: ${currentUser.section}`, doc.internal.pageSize.getWidth() / 2 - 20, 145, { align: 'center' });
+            doc.text(`Roll: ${currentUser.roll}`, doc.internal.pageSize.getWidth() / 2 + 40, 145, { align: 'center' });
+            // Year label with right alignment (positioned within the white content box, avoiding photo overlap)
+            doc.text(`Year: ${currentUser.year || 'N/A'}`, 250, 145, { align: 'right' });
 
             // Achievement statement
             doc.setFontSize(16);
@@ -1098,6 +1125,12 @@
         });
 
     </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 BCIC IT CLUB Quiz Challenge. All rights reserved.</p>
+        <p>Developed by <strong><a href="https://facebook.com/aponexe69" target="_blank" rel="noopener noreferrer">Asadujjaman Apon</a></strong></p>
+    </footer>
 
 </body>
 
